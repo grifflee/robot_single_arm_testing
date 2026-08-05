@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.venv/
+uv.lock
+
+# outputs/ IS tracked -- the reach mp4s and stills are the deliverable here.
+# Anything scratch goes under outputs/scratch/.
+outputs/scratch/

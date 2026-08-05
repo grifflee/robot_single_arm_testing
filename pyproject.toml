@@ -1,0 +1,26 @@
+[project]
+name = "robot-single-arm-testing"
+version = "0.1.0"
+description = "Lynxmotion LSS arm in Genesis: asset conversion, reach task, IK datasets"
+readme = "README.md"
+requires-python = ">=3.11, <3.13"
+
+# Exactly what scripts/ imports. run.sh currently borrows the venv from
+# ~/repos/xarm-sim-construction; this list is what a standalone `uv sync` here
+# would need. The version floors match that known-good environment.
+dependencies = [
+    "genesis-world[render]>=1.2.0",
+    "imageio>=2.37.3",
+    "imageio-ffmpeg>=0.6.0",   # cam.stop_recording writes mp4 through ffmpeg
+    "numpy>=1.26",
+    # setuptools >=83's _distutils_hack asserts its vendored distutils is
+    # active; Genesis imports stdlib distutils first, so anything JIT-compiling
+    # afterwards dies on an AssertionError. run.sh also sets
+    # SETUPTOOLS_USE_DISTUTILS=stdlib as a second line of defence.
+    "setuptools<83",
+    "torch>=2.12.1",
+    "tyro>=1.0.15",
+]
+
+[tool.uv]
+environments = ["sys_platform == 'linux'"]

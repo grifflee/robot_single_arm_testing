@@ -1,0 +1,35 @@
+{
+  "urdf": "assets/lss_arm/lss_arm_4dof.urdf",
+  "ee_link": "lss_arm_ee",
+  "mode": "ik",
+  "seed": 0,
+  "rows": 10000,
+  "attempts": 13074,
+  "pos_tol_m": 0.0005,
+  "claw": "zero",
+  "columns": {
+    "q1": "lss_arm_joint_1",
+    "q2": "lss_arm_joint_2",
+    "q3": "lss_arm_joint_3",
+    "q4": "lss_arm_joint_4",
+    "q5_claw": "gripper opening (rad, finger joint)"
+  },
+  "joint_limits": {
+    "lss_arm_joint_1": [
+      -3.1415927410125732,
+      3.1415927410125732
+    ],
+    "lss_arm_joint_2": [
+      -2.181661605834961,
+      2.181661605834961
+    ],
+    "lss_arm_joint_3": [
+      -1.919862151145935,
+      1.5707963705062866
+    ],
+    "lss_arm_joint_4": [
+      -2.094395160675049,
+      2.094395160675049
+    ]
+  }
+}
