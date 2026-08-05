@@ -22,7 +22,7 @@ import genesis as gs
 import numpy as np
 import tyro
 
-from lss_common import REPO, add_arm, rel as _rel, split_dofs, vis_options
+from lss_common import REPO, add_arm, begin_recording, rel as _rel, split_dofs, vis_options
 
 # The LSS arm is small -- roughly 0.35 m of reach -- so the stock camera
 # distances that suit an xArm7 frame it as a speck. These are tuned to it.
@@ -122,8 +122,8 @@ def _sweep(scene, arm, cam, cfg: Config) -> None:
     dofs = list(range(arm.n_dofs))
     target = np.zeros(arm.n_dofs)
 
-    cfg.video.parent.mkdir(parents=True, exist_ok=True)
-    cam.start_recording()
+    # dt is 1/100, so 60 fps is the fastest the recorder will accept here
+    stop_recording = begin_recording(cam, cfg.video, 60)
     for d in split_dofs(arm)[0]:  # arm joints only; the fingers are not a reach DoF
         lo, hi = float(lower[d]), float(upper[d])
         # 60% of range keeps the sweep clear of the ground plane and of hard stops
@@ -135,7 +135,7 @@ def _sweep(scene, arm, cam, cfg: Config) -> None:
             scene.step()
             cam.render()
         target[d] = 0.0
-    cam.stop_recording(save_to_filename=str(cfg.video), fps=60)
+    stop_recording()
     print(f"wrote {cfg.video}")
 
 

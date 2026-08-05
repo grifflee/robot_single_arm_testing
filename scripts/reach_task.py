@@ -36,7 +36,7 @@ import genesis as gs
 import numpy as np
 import tyro
 
-from lss_common import REPO, EE_LINK, add_arm, vis_options, fk as _fk, split_dofs as _split_dofs, to_np as _np
+from lss_common import REPO, EE_LINK, add_arm, begin_recording, rel as _rel, vis_options, fk as _fk, split_dofs as _split_dofs, to_np as _np
 
 
 @dataclass
@@ -122,8 +122,8 @@ def main(cfg: Config) -> None:
         for _ in range(20):
             scene.step()  # let the reset settle before the clock starts
 
-        if cfg.video:
-            cam.start_recording()
+        path = cfg.out_dir / f"reach_{cfg.dof}dof_dot{ep}.mp4" if cfg.video else None
+        stop_recording = begin_recording(cam, path, cfg.fps) if cfg.video else None
 
         contacts = 0
         target_q = np.zeros(arm.n_dofs)
@@ -153,11 +153,8 @@ def main(cfg: Config) -> None:
         sol_rows[ep, 3:-1] = final_q[arm_dofs]
         sol_rows[ep, -1] = abs(final_q[finger_dofs[0]]) if finger_dofs else 0.0
 
-        if cfg.video:
-            path = cfg.out_dir / f"reach_{cfg.dof}dof_dot{ep}.mp4"
-            cam.stop_recording(save_to_filename=str(path), fps=cfg.fps)
-        else:
-            path = None
+        if stop_recording is not None:
+            stop_recording()
         summary.append((ep, target, err, contacts, path))
         print(f"dot {ep}: target {np.round(target, 3)}  final EE error {err * 1000:6.1f} mm  "
               f"contact-steps {contacts:4d}" + (f"  -> {path.name}" if path else ""))
@@ -267,7 +264,7 @@ def _write(cfg, traj_header, traj, sol_rows, n_arm, joint_names, lower, upper,
     meta_path.write_text(json.dumps(meta, indent=2) + "\n")
 
     for p in (traj_path, sol_path, meta_path):
-        print(f"wrote {p.relative_to(REPO)}")
+        print(f"wrote {_rel(p)}")
     print(f"      {len(traj)} trajectory rows, {len(sol_rows)} solution rows")
 
 

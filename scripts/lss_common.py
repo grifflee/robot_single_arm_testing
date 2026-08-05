@@ -6,6 +6,8 @@ puts ``scripts/`` on sys.path, so a plain ``import lss_common`` works).
 
 from __future__ import annotations
 
+import inspect
+from collections.abc import Callable
 from pathlib import Path
 
 import genesis as gs
@@ -38,6 +40,24 @@ def vis_options() -> gs.options.VisOptions:
         ambient_light=(0.45, 0.45, 0.48),
         background_color=(0.16, 0.17, 0.20),
     )
+
+
+def begin_recording(cam, path: Path, fps: int) -> Callable[[], None]:
+    """Start recording; return the call that finishes the mp4.
+
+    Genesis moved the output filename and fps from ``stop_recording`` to
+    ``start_recording`` in 1.3. ``pyproject.toml`` floors genesis-world at 1.2
+    without capping it, so a fresh ``uv sync`` lands on the new API while a
+    pinned older environment keeps the old one -- and passing the wrong one is a
+    hard TypeError, not a warning. Branch on the signature rather than the
+    version string, which is what actually determines the call.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if "save_to_filename" in inspect.signature(cam.start_recording).parameters:
+        cam.start_recording(save_to_filename=str(path), fps=fps)
+        return cam.stop_recording
+    cam.start_recording()
+    return lambda: cam.stop_recording(save_to_filename=str(path), fps=fps)
 
 
 def urdf_path(dof: int) -> Path:
